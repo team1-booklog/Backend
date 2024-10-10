@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.CascadeType;
 
 @Getter
 @Entity
@@ -41,16 +42,15 @@ public class Book extends BaseTimeEntity {
 	@Column(nullable = false, length = 1000)
 	private String description;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "file_id")
 	private File file;
 
 	@ManyToMany(mappedBy = "books")
 	private List<User> users = new ArrayList<>();
 
-	public static Book create(Long id, String title, String author, String description, File file) {
+	public static Book create(String title, String author, String description, File file) {
 		return Book.builder()
-			.id(id)
 			.title(title)
 			.author(author)
 			.description(description)

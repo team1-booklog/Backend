@@ -28,6 +28,7 @@ public record BookResponse(
 		requiredMode = NOT_REQUIRED)
 	FileResponse file
 ) {
+
 	public static BookResponse from(Book book) {
 		return BookResponse.builder()
 			.id(book.getId())

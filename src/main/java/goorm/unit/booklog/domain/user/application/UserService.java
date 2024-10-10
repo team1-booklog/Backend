@@ -1,6 +1,7 @@
 package goorm.unit.booklog.domain.user.application;
 
 import goorm.unit.booklog.domain.user.domain.User;
+import goorm.unit.booklog.domain.user.presentation.exception.UserNotAuthenticatedException;
 import goorm.unit.booklog.domain.user.presentation.request.UserCreateRequest;
 import goorm.unit.booklog.domain.user.domain.UserRepository;
 import goorm.unit.booklog.domain.user.presentation.exception.UserIdDuplicatedException;
@@ -8,6 +9,8 @@ import goorm.unit.booklog.domain.user.presentation.exception.UserNotFoundExcepti
 import goorm.unit.booklog.domain.user.presentation.response.UserPersistResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,16 @@ public class UserService {
     public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    public User me() {
+        try {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String id= ((UserDetails)principal).getUsername();
+            return getUserById(id);
+        } catch (Exception e) {
+            throw new UserNotAuthenticatedException();
+        }
     }
 
 }

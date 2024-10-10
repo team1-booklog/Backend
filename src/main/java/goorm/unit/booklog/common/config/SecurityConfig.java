@@ -69,7 +69,7 @@ public class SecurityConfig {
 		"/favicon.ico",
 		"/index.html",
 		"/api/v1/users/signup",
-		"/api/v1/auth/login"
+		"/api/v1/auth/login",
 		"/api/v1/users/duplication",
 	};
 

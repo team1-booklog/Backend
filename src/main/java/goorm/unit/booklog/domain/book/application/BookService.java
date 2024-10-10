@@ -3,7 +3,10 @@ package goorm.unit.booklog.domain.book.application;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import goorm.unit.booklog.domain.book.domain.Book;
+import goorm.unit.booklog.domain.file.domain.File;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,12 +60,43 @@ public class BookService {
 		List<BookResponse> bookResponses = new ArrayList<>();
 		for (int i = 0; i < items.length(); i++) {
 			JSONObject item = items.getJSONObject(i);
+
+			Long id;
+			String title = item.getString("title");
+			String author = item.getString("author");
+			String description=item.getString("description");
+			String link=item.getString("link");
+
+			Optional<Book> existingBook = bookRepository.findByTitleAndAuthor(title, author);
+
+			if (!existingBook.isPresent()) {
+				File file = File.of(
+						title, // logical name을 title로 지정하였음
+						link
+				);
+
+				Book book = Book.create(
+						title,
+						author,
+						description,
+						file
+				);
+
+				bookRepository.save(book);
+				id = book.getId();
+			}
+			else{
+				id = existingBook.get().getId();
+			}
+
+
+
 			BookResponse bookResponse = BookResponse.of(
-				(long)(i + 1),
-				item.getString("title"),
-				item.getString("author"),
-				item.getString("description"),
-				item.getString("link")
+					id,
+					title,
+					author,
+					description,
+					link
 			);
 			bookResponses.add(bookResponse);
 		}
@@ -71,4 +105,9 @@ public class BookService {
 		return BookPageResponse.of(bookResponses, PageableResponse.of(PageRequest.of(page, size), (long)total));
 
 	}
+
+	public Book getBook(long id) {
+		return bookRepository.findById(id).orElse(null);
+	}
+
 }

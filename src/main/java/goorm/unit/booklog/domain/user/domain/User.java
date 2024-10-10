@@ -7,18 +7,12 @@ import java.util.List;
 
 import goorm.unit.booklog.common.domain.BaseTimeEntity;
 import goorm.unit.booklog.domain.book.domain.Book;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import goorm.unit.booklog.domain.review.domain.Review;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 
 @Getter
@@ -39,6 +33,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         @Column(nullable=false)
         private String password;
 
+        //사용자 한명은 책 여러개 가능. 책 한개는 사용자 여러명 가능
         @ManyToMany
         @JoinTable(
             name = "user_books",
@@ -46,6 +41,10 @@ public class User extends BaseTimeEntity implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "book_id")
         )
         private List<Book> books = new ArrayList<>();
+
+        //사용자 한명은 리뷰 여러개 가능. 리뷰 한개는 사용자 한명 가능.
+        @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+        private List<Review> reviews = new ArrayList<>();
 
         public static User create(String id, String name, String password) {
                 return User.builder()
